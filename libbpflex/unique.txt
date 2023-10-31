@@ -1,0 +1,14 @@
+Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 37370   D_IP: 136.143.190.84   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 255.633
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 55472   D_IP: 136.143.191.101   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 253.693
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 57478   D_IP: 136.143.190.145   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 255.460
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 40302   D_IP: 103.103.196.108   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 27.169
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 42948   D_IP: 169.148.131.32   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 192.872
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 39346   D_IP: 204.141.32.123   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 252.755
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 42286   D_IP: 136.143.180.20   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 249.065
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 54430   D_IP: 14.139.161.7   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 10.296
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 55726   D_IP: 104.18.38.233   DPort: 80    ThreadID: 2066    PID: 2045     Latency: 6.228
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 35784   D_IP: 172.217.160.142   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 3.410
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 50784   D_IP: 142.250.193.170   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 6.821
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 34294   D_IP: 142.250.182.69   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 5.633
+ Process Name: Chrome_ChildIOT    S_IP: 10.15.199.109    SPort: 33596   D_IP: 136.143.186.20   DPort: 443    ThreadID: 2066    PID: 2045     Latency: 279.115
+ 
