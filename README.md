@@ -1,5 +1,5 @@
 # BPFlex
-   A new Ebpf framework to push eBPF programs in native C.
+   An eBPF framework designed for deploying eBPF programs in native C.
 
 Steps:
     git clone https://github.com/karthickpython/BPFlex.git
@@ -8,4 +8,4 @@ Steps:
     make 
     sudo ./tcpstats
 
-view unique connections a host make in unique.txt in the same directory.
+View unique host connections in 'unique.txt' within the same directory.
