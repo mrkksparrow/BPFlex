@@ -72,93 +72,6 @@ enum {
         TCP_MAX_STATES  /* Leave at the end! */
 };
 
-const char *argp_program_version = "tcpstates 1.0";
-const char *argp_program_bug_address =
-	"https://github.com/iovisor/bcc/tree/master/libbpf-tools";
-const char argp_program_doc[] =
-"Trace TCP session state changes and durations.\n"
-"\n"
-"USAGE: tcpstates [-4] [-6] [-T] [-L lport] [-D dport]\n"
-"\n"
-"EXAMPLES:\n"
-"    tcpstates                  # trace all TCP state changes\n"
-"    tcpstates -T               # include timestamps\n"
-"    tcpstates -L 80            # only trace local port 80\n"
-"    tcpstates -D 80            # only trace remote port 80\n";
-
-static const struct argp_option opts[] = {
-	{ "verbose", 'v', NULL, 0, "Verbose debug output" },
-	{ "timestamp", 'T', NULL, 0, "Include timestamp on output" },
-	{ "ipv4", '4', NULL, 0, "Trace IPv4 family only" },
-	{ "ipv6", '6', NULL, 0, "Trace IPv6 family only" },
-	{ "wide", 'w', NULL, 0, "Wide column output (fits IPv6 addresses)" },
-	{ "localport", 'L', "LPORT", 0, "Comma-separated list of local ports to trace." },
-	{ "remoteport", 'D', "DPORT", 0, "Comma-separated list of remote ports to trace." },
-	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help" },
-	{},
-};
-
-static error_t parse_arg(int key, char *arg, struct argp_state *state)
-{
-	long port_num;
-	char *port;
-
-	switch (key) {
-	case 'v':
-		verbose = true;
-		break;
-	case 'T':
-		emit_timestamp = true;
-		break;
-	case '4':
-		target_family = AF_INET;
-		break;
-	case '6':
-		target_family = AF_INET6;
-		break;
-	case 'w':
-		wide_output = true;
-		break;
-	case 'L':
-		if (!arg) {
-			warn("No ports specified\n");
-			argp_usage(state);
-		}
-		target_sports = strdup(arg);
-		port = strtok(arg, ",");
-		while (port) {
-			port_num = strtol(port, NULL, 10);
-			if (errno || port_num <= 0 || port_num > 65536) {
-				warn("Invalid ports: %s\n", arg);
-				argp_usage(state);
-			}
-			port = strtok(NULL, ",");
-		}
-		break;
-	case 'D':
-		if (!arg) {
-			warn("No ports specified\n");
-			argp_usage(state);
-		}
-		target_dports = strdup(arg);
-		port = strtok(arg, ",");
-		while (port) {
-			port_num = strtol(port, NULL, 10);
-			if (errno || port_num <= 0 || port_num > 65536) {
-				warn("Invalid ports: %s\n", arg);
-				argp_usage(state);
-			}
-			port = strtok(NULL, ",");
-		}
-		break;
-	case 'h':
-		argp_state_help(state, stderr, ARGP_HELP_STD_HELP);
-		break;
-	default:
-		return ARGP_ERR_UNKNOWN;
-	}
-	return 0;
-}
 
 static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args)
 {
@@ -175,9 +88,9 @@ static void sig_int(int signo)
 
 FILE *file;
 
-void write_tuples(struct event *e)
+bool write_tuples(struct event *e)
 {
-    char ts[32], saddr[26], daddr[26];
+    char saddr[26], daddr[26];
 
     inet_ntop(e->family, &e->saddr, saddr, sizeof(saddr));
     inet_ntop(e->family, &e->daddr, daddr, sizeof(daddr));
@@ -190,12 +103,11 @@ void write_tuples(struct event *e)
     // Close the file
     fclose(file);
 }
-void insert_socket(struct list **headref, struct event *e, bool tuple_on)
+int insert_socket(struct list **headref, struct event *e, bool tuple_on)
 {
 	if(e->newstate != TCP_ESTABLISHED)
 		return 0;
 
-	char ts[32], saddr[26], daddr[26];
         
 	struct list *node = (struct list*) malloc(sizeof(struct list));
 	node->socket_details.skaddr = e->skaddr;
@@ -231,18 +143,15 @@ int search_socket(struct list **headref, struct event *e)
 {
 	 struct list *head = *headref;
          if(head == NULL){
-	//	 printf("list is empty \n");
                 return 0;
 	 }
 	 while(head != NULL){
-//		 printf(" head socket %llx e socket %llx \n", head->socket_details.skaddr, e->skaddr);
 		if(head->socket_details.skaddr == e->skaddr){
-			printf("list socket state %d \n",head->socket_details.newstate);
 			return head->socket_details.newstate;
 		}
 		head = head->next;
 	  } 
-         printf("retuing false \n");
+         
 	 return false;
 }
 
@@ -314,13 +223,11 @@ void print_details(struct list **node){
 	char daddr[26];
 //	inet_ntop(2, &headd->socket_details.daddr, daddr, sizeof(daddr));
 
-	printf("Starting... \n");	
 	while(headd != NULL){
 		inet_ntop(2, &headd->socket_details.daddr, daddr, sizeof(daddr));
-		printf("Active Connections  %s  task %s\n", daddr, headd->socket_details.task);
+	//	printf("Active Connections  %s  task %s\n", daddr, headd->socket_details.task);
                 headd = headd->next;
 	}
-	printf("End.. \n\n");
 	
 }
 
@@ -341,13 +248,10 @@ int socket_handle(struct event *e)
 	{
            open = 1;		
            insert_socket(&head, e, false);
-	   printf("checking 5 tuples \n");
 	   if(!search_5_tuples(&head_conn, e)){
-		   printf("5 tuples not detected \n");
 		   insert_socket(&head_conn, e, true);
 	   }
          //  print_details(&head);	
-	   printf("5 Tuples printing \n");
 	   print_details(&head_conn);
 	}
        
@@ -406,11 +310,6 @@ int shmid;
 int main(int argc, char **argv)
 {
 	LIBBPF_OPTS(bpf_object_open_opts, open_opts);
-	static const struct argp argp = {
-		.options = opts,
-		.parser = parse_arg,
-		.doc = argp_program_doc,
-	};
 	struct perf_buffer *pb = NULL;
 	struct tcpstates_bpf *obj;
 	int err, port_map_fd;
@@ -429,9 +328,6 @@ int main(int argc, char **argv)
         exit(1);
        }
 
-	err = argp_parse(&argp, argc, argv, 0, NULL, NULL);
-	if (err)
-		return err;
 
 	libbpf_set_print(libbpf_print_fn);
 
@@ -496,16 +392,6 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
-	if (emit_timestamp)
-		printf("%-8s ", "TIME(s)");
-	if (wide_output)
-		printf("%-16s %-7s %-16s %-2s %-26s %-5s %-26s %-5s %-11s -> %-11s %s\n",
-		       "SKADDR", "PID", "COMM", "IP", "LADDR", "LPORT",
-		       "RADDR", "RPORT", "OLDSTATE", "NEWSTATE", "MS");
-	else
-		printf("%-16s %-7s %-10s %-15s %-5s %-15s %-5s %-11s -> %-11s %s\n",
-		       "SKADDR", "PID", "COMM", "LADDR", "LPORT",
-		       "RADDR", "RPORT", "OLDSTATE", "NEWSTATE", "MS");
 
 	while (!exiting) {
 		err = perf_buffer__poll(pb, PERF_POLL_TIMEOUT_MS);
