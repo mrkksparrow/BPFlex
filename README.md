@@ -2,7 +2,10 @@
    An eBPF framework designed for deploying eBPF programs in native C.
 
 Steps:
+
     git clone https://github.com/karthickpython/BPFlex.git
+
+    cd BPFlex
     
     sudo bash bpftool_installer.sh
     
@@ -13,3 +16,4 @@ Steps:
     sudo ./tcpstats
 
 View unique host connections in 'unique.txt' within the same directory.
+
