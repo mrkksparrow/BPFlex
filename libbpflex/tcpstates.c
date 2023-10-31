@@ -91,6 +91,15 @@ FILE *file;
 bool write_tuples(struct event *e)
 {
     char saddr[26], daddr[26];
+    struct tm *tm;
+    time_t t;
+    char ts[32];
+
+    time(&t);
+    tm = localtime(&t);
+    strftime(ts, sizeof(ts), "%H:%M:%S", tm);
+                printf("%8s ", ts);
+
 
     inet_ntop(e->family, &e->saddr, saddr, sizeof(saddr));
     inet_ntop(e->family, &e->daddr, daddr, sizeof(daddr));
@@ -99,7 +108,7 @@ bool write_tuples(struct event *e)
         perror("Error opening file");
         return false;
     }
-    fprintf(file, "Process Name: %s    S_IP: %s    SPort: %d   D_IP: %s   DPort: %d    ThreadID: %d    PID: %d     Latency: %.3f\n ", e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid, (double)e->delta_us / 1000 );
+    fprintf(file, "Time: %s Process Name: %s    S_IP: %s    SPort: %d   D_IP: %s   DPort: %d    ThreadID: %d    PID: %d     Latency: %.3f\n ", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid, (double)e->delta_us / 1000 );
     // Close the file
     fclose(file);
 }
@@ -276,7 +285,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 	struct tm *tm;
 	int family;
 	time_t t;
-	if (emit_timestamp) {
+/*	if (emit_timestamp) {
 		time(&t);
 		tm = localtime(&t);
 		strftime(ts, sizeof(ts), "%H:%M:%S", tm);
@@ -293,7 +302,7 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 		printf("%-16llx %-7d %-10.10s %-15s %-5d %-15s %-5d %-11s -> %-11s %.3f\n",
 		       e->skaddr, e->pid, e->task, saddr, e->sport, daddr, e->dport,
 		       tcp_states[e->oldstate], tcp_states[e->newstate], (double)e->delta_us / 1000);
-	}
+	}*/
 
 	 socket_handle(e);
              
