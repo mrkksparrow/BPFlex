@@ -18,7 +18,7 @@ Steps:
 View unique host connections in 'unique.txt' within the same directory.
 
 
-Obtain metrics for the number of unique connections, along with connection details, including the creating process name, process ID, thread ID, 5-tuple information, and connection establishment latency.
+tcpstats application created to obtain metrics for the number of unique connections, along with connection details, including the creating process name, process ID, thread ID, 5-tuple information, and connection establishment latency.
 
 
 Example output:
