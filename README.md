@@ -3,9 +3,13 @@
 
 Steps:
     git clone https://github.com/karthickpython/BPFlex.git
+    
     sudo bash bpftool_installer.sh
+    
     cd libbpflex
-    make 
+    
+    make
+    
     sudo ./tcpstats
 
 View unique host connections in 'unique.txt' within the same directory.
