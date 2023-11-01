@@ -13,7 +13,7 @@ Steps:
     
     make
     
-    sudo ./tcpstats
+    sudo ./tcpstates
 
 View unique host connections in 'unique.txt' within the same directory.
 
