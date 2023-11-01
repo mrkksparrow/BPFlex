@@ -8,13 +8,13 @@ sudo apt install libbpf-dev
 # Go to src/cc directory
 cd src/cc
 
-# Clone a directory (replace with the actual repository URL and directory name)
+# Clone libbpf directory
 git clone https://github.com/libbpf/libbpf.git
 
 # Go to libbpflex directory
 cd ../../libbpflex
 
-# Clone bpftool (replace with the actual repository URL)
+# Clone bpftool 
 git clone https://github.com/libbpf/bpftool.git
 
 # Go to the bpftool directory
@@ -23,9 +23,9 @@ cd bpftool
 # Delete the libbpf directory within bpftool
 rm -rf libbpf
 
-# Clone libbpf again (replace with the actual repository URL)
+# Clone libbpf again 
 git clone https://github.com/libbpf/libbpf.git
 
-# Return to the main directory
+
 cd ../../
 #
