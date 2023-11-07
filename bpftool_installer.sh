@@ -4,6 +4,7 @@ sudo apt-get install libelf-dev
 sudo apt-get install libc6-dev-i386
 sudo apt-get install -y gcc-multilib
 sudo apt install libbpf-dev
+sudo apt-get install libcap-dev
 
 # Go to src/cc directory
 cd src/cc
