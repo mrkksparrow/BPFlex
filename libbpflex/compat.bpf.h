@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause)
-/* Copyright (c) 2022 Hengqi Chen */
-
 #ifndef __COMPAT_BPF_H
 #define __COMPAT_BPF_H
 
