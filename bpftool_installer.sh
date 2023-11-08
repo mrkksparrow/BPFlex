@@ -1,5 +1,6 @@
 #!/bin/bash
-
+sudo apt-get install clang
+sudo apt-get install llvm
 sudo apt-get install libelf-dev
 sudo apt-get install libc6-dev-i386
 sudo apt-get install -y gcc-multilib
