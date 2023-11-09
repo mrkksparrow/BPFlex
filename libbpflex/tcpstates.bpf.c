@@ -49,19 +49,10 @@ int handle_set_state(struct trace_event_raw_inet_sock_set_state *ctx)
 	__u16 dport = ctx->dport;
 	__u64 *tsp, delta_us = 0, ts, *tspe;
 	__u16 flag_submit = 0;
-	//struct event event = {};
 
 	if (ctx->protocol != IPPROTO_TCP)
 		return 0;
 
-	if (target_family && target_family != family)
-		return 0;
-
-	if (filter_by_sport && !bpf_map_lookup_elem(&sports, &sport))
-		return 0;
-
-	if (filter_by_dport && !bpf_map_lookup_elem(&dports, &dport))
-		return 0;
         int state = ctx->newstate;  
 	if(state  == TCP_SYN_SENT){
 		ts = bpf_ktime_get_ns();
@@ -83,16 +74,8 @@ int handle_set_state(struct trace_event_raw_inet_sock_set_state *ctx)
 		}
 	}
 
-//	tsp = bpf_map_lookup_elem(&timestamps, &sk);
-//	ts = bpf_ktime_get_ns();
-//	if (!tsp)
-//		delta_us = 0;
-//	else
-//		delta_us = (ts - *tsp) / 1000;
         if((ctx->newstate == TCP_SYN_SENT) || (ctx->newstate == TCP_CLOSE)) {
 		event.skaddr = (__u64)sk;
-		//event.ts_us = ts / 1000;
-//		event.delta_us = delta_us;
                __u64 pid_tgid = bpf_get_current_pid_tgid();
 		event.tid =(__u32) pid_tgid;
 		event.pid = bpf_get_current_pid_tgid() >> 32;
