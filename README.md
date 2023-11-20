@@ -15,7 +15,7 @@ Steps:
     
     sudo ./tcpstates
 
-View unique host connections in 'unique.txt' within the same directory.
+View unique active TCP host connections in 'unique_active.txt' and passive connection in unique_passive.txt within the same directory.
 
 
 tcpstats application created to obtain metrics for the number of unique connections, along with connection details, including the creating process name, process ID, thread ID, 5-tuple information, and connection establishment latency.
