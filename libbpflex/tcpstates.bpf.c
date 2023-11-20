@@ -49,16 +49,24 @@ int handle_set_state(struct trace_event_raw_inet_sock_set_state *ctx)
 	__u16 dport = ctx->dport;
 	__u64 *tsp, delta_us = 0, ts, *tspe;
 	__u16 flag_submit = 0;
-
+        __u16 flag_passive = 0;
 	if (ctx->protocol != IPPROTO_TCP)
 		return 0;
 
         int state = ctx->newstate;  
+	int old_state = ctx->oldstate;
 	if(state  == TCP_SYN_SENT){
 		ts = bpf_ktime_get_ns();
 	        bpf_map_update_elem(&timestamps, &sk, &ts, BPF_ANY);
 
         }
+
+	if(old_state == TCP_LISTEN && state == TCP_SYN_RECV){
+		flag_passive = 1;
+		ts = bpf_ktime_get_ns();
+                bpf_map_update_elem(&timestamps, &sk, &ts, BPF_ANY);
+
+	 }
       
 	if(state == TCP_ESTABLISHED)
 	{
@@ -86,6 +94,33 @@ int handle_set_state(struct trace_event_raw_inet_sock_set_state *ctx)
 		event.dport = dport;
 		event.protocol = IPPROTO_TCP;
 		bpf_get_current_comm(&event.task, sizeof(event.task));
+	}
+
+	if(old_state == TCP_SYN_RECV && state == TCP_ESTABLISHED){
+		tspe = bpf_map_lookup_elem(&timestamps, &sk);
+		if(tspe){
+                __u64 pid_tgid = bpf_get_current_pid_tgid();
+                event.tid =(__u32) pid_tgid;
+                event.pid = bpf_get_current_pid_tgid() >> 32;
+                event.oldstate = ctx->oldstate;
+                event.newstate = ctx->newstate;
+                event.family = family;
+                event.sport = sport;
+                event.dport = dport;
+                event.protocol = IPPROTO_TCP;
+		event.conn_passive = 1;
+                bpf_get_current_comm(&event.task, sizeof(event.task));
+
+		if (family == AF_INET) {
+                bpf_probe_read_kernel(&event.saddr, sizeof(event.saddr), &sk->__sk_common.skc_rcv_saddr);
+                bpf_probe_read_kernel(&event.daddr, sizeof(event.daddr), &sk->__sk_common.skc_daddr);
+                } else { /* family == AF_INET6 */
+                bpf_probe_read_kernel(&event.saddr, sizeof(event.saddr), &sk->__sk_common.skc_v6_rcv_saddr.in6_u.u6_addr32);
+                bpf_probe_read_kernel(&event.daddr, sizeof(event.daddr), &sk->__sk_common.skc_v6_daddr.in6_u.u6_addr32);
+                }         
+                bpf_printk(" passive src address %llu \n,", event.saddr);
+		bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
+		}
 	}
 
 	if (family == AF_INET) {

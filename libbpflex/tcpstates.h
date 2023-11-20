@@ -20,6 +20,7 @@ struct event {
 	char task[TASK_COMM_LEN];
 	unsigned long long saddr;
         unsigned long long daddr;
+	__u16 conn_passive;
 };
 
 struct list {

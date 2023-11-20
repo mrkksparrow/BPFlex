@@ -90,11 +90,25 @@ bool write_tuples(struct event *e)
     tm = localtime(&t);
     strftime(ts, sizeof(ts), "%H:%M:%S", tm);
                 printf("%8s ", ts);
-
-
+    
     inet_ntop(e->family, &e->saddr, saddr, sizeof(saddr));
     inet_ntop(e->family, &e->daddr, daddr, sizeof(daddr));
-    file = fopen("unique.txt", "ab");
+	
+    if(e->conn_passive == 1){
+          file = fopen("unique_passive.txt", "ab");
+          if (file == NULL) {
+            perror("Error opening file");
+            return false;
+         }
+    fprintf(file, "Time: %s Process Name: %s    S_IP: %s    SPort: %d   D_IP: %s   DPort: %d    ThreadID: %d    PID: %d \n", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid);
+    // Close the file
+    fclose(file);
+
+     return true;
+
+    }	    
+
+    file = fopen("unique_active.txt", "ab");
     if (file == NULL) {
         perror("Error opening file");
         return false;
@@ -102,6 +116,7 @@ bool write_tuples(struct event *e)
     fprintf(file, "Time: %s Process Name: %s    S_IP: %s    SPort: %d   D_IP: %s   DPort: %d    ThreadID: %d    PID: %d     Latency: %.3f\n ", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid, (double)e->delta_us / 1000 );
     // Close the file
     fclose(file);
+
 }
 int insert_socket(struct list **headref, struct event *e, bool tuple_on)
 {
@@ -236,6 +251,9 @@ int socket_handle(struct event *e)
         int state;
 	state = search_socket(&head,e);
 	int close, open;
+        if(e->conn_passive == 1){
+		write_tuples(e);
+	}
 
 	if(state == TCP_ESTABLISHED && e->newstate == TCP_CLOSE)
 	{	
@@ -276,6 +294,9 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
 	struct tm *tm;
 	int family;
 	time_t t;
+
+ /* Below code can be used to print the connection details on the console screen*/
+
 /*	if (emit_timestamp) {
 		time(&t);
 		tm = localtime(&t);
@@ -315,27 +336,15 @@ int main(int argc, char **argv)
 	int err, port_map_fd;
 	short port_num;
 	char *port;
-        shmid = shmget(SHM_KEY, sizeof(struct list), 0666 | IPC_CREAT);
-
-        if (shmid == -1) {
-           perror("shmget");
-           exit(1);
-        } 
-
-       sharedList = (struct Node*)shmat(shmid, NULL, 0);
-       if (sharedList == (void*)-1) {
-        perror("shmat");
-        exit(1);
-       }
-
+       
 
 	libbpf_set_print(libbpf_print_fn);
 
-/*	err = ensure_core_btf(&open_opts);
+	err = ensure_core_btf(&open_opts);
 	if (err) {
 		warn("failed to fetch necessary BTF for CO-RE: %s\n", strerror(-err));
 		return 1;
-	}*/
+	}
 
 	obj = tcpstates_bpf__open_opts(&open_opts);
 	if (!obj) {
@@ -406,7 +415,7 @@ int main(int argc, char **argv)
 cleanup:
 	perf_buffer__free(pb);
 	tcpstates_bpf__destroy(obj);
-//	cleanup_core_btf(&open_opts);
+	cleanup_core_btf(&open_opts);
 
 	return err != 0;
 }
