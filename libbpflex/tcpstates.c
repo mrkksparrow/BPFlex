@@ -99,7 +99,7 @@ bool write_tuples(struct event *e)
             perror("Error opening file");
             return false;
          }  
-    fprintf(file, "%s:%s:%s:%d:%s:%d:%d:%d \n", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid);
+    fprintf(file, "%s|%s|%s|%d|%s|%d|%d|%d \n", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid);
     // Close the file
     fclose(file);
 
