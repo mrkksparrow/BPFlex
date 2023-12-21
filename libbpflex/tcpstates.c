@@ -22,7 +22,6 @@
 
 static volatile sig_atomic_t exiting = 0;
 
-#define SHM_KEY 12345
 
 static bool emit_timestamp = false;
 static short target_family = 0;
@@ -99,8 +98,8 @@ bool write_tuples(struct event *e)
           if (file == NULL) {
             perror("Error opening file");
             return false;
-         }
-    fprintf(file, "Time: %s Process Name: %s    S_IP: %s    SPort: %d   D_IP: %s   DPort: %d    ThreadID: %d    PID: %d \n", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid);
+         }  
+    fprintf(file, "%s:%s:%s:%d:%s:%d:%d:%d \n", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid);
     // Close the file
     fclose(file);
 
@@ -113,7 +112,7 @@ bool write_tuples(struct event *e)
         perror("Error opening file");
         return false;
     }
-    fprintf(file, "Time: %s Process Name: %s    S_IP: %s    SPort: %d   D_IP: %s   DPort: %d    ThreadID: %d    PID: %d     Latency: %.3f\n ", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid, (double)e->delta_us / 1000 );
+    fprintf(file, "%s|%s|%s|%d|%s|%d|%d|%d|%.3f\n", ts, e->task, saddr, e->sport, daddr, e->dport, e->tid, e->pid, (double)e->delta_us / 1000 );
     // Close the file
     fclose(file);
 
