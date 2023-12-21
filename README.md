@@ -3,11 +3,9 @@
 
 Steps:
 
-    git clone --recurse-submodules https://github.com/karthickpython/BPFlex.git
+    git clone https://github.com/karthickpython/BPFlex.git
 
     cd BPFlex
-
-    git submodule update --init --recursive
     
     sudo bash bpftool_installer.sh
     
